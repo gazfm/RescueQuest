@@ -15,6 +15,7 @@ var BackgroundLayer = cc.Layer.extend({
             x: size.width / 2,
             y: size.height / 2,
         });
+        this.sprite.scaleX = 1.33;
         this.addChild(this.sprite, 0);
 
         return true;
@@ -102,7 +103,7 @@ var ManyTilesSpeedTestLayer = cc.SpriteBatchNode.extend({
 
 
 
-var SpriteLayer = cc.Layer.extend({
+var PhysicsTestLayer = cc.Layer.extend({
     _space: null,
     ctor:function (model) {
         this._super();
@@ -126,8 +127,8 @@ var SpriteLayer = cc.Layer.extend({
         this._space.addStaticShape(wallLeft);
 
         var wallRight = new cp.SegmentShape(this._space.staticBody,
-            cp.v(480, 0),// start point
-            cp.v(480, 4294967295),// MAX INT:4294967295
+            cp.v(640, 0),// start point
+            cp.v(640, 4294967295),// MAX INT:4294967295
             0);// thickness of wall
         wallLeft.setElasticity(0.5);
         this._space.addStaticShape(wallRight);
@@ -170,6 +171,107 @@ var SpriteLayer = cc.Layer.extend({
 });
 
 
+
+
+var SpritesLayer = cc.Layer.extend({
+    _space: null,
+    player: null,
+    timeSinceLastJump: 0.0,
+    ctor:function (model) {
+        this._super();
+        var size = cc.director.getWinSize();
+
+        this._space = new cp.Space();
+        this._space.gravity = cp.v(0, -350);
+
+        var wallBottom = new cp.SegmentShape(this._space.staticBody,
+            cp.v(0, 0),// start point
+            cp.v(4294967295, 0),// MAX INT:4294967295
+            0);// thickness of wall
+        wallBottom.setElasticity(0.5);
+        this._space.addStaticShape(wallBottom);
+
+        var wallLeft = new cp.SegmentShape(this._space.staticBody,
+            cp.v(0, 0),// start point
+            cp.v(0, 4294967295),// MAX INT:4294967295
+            0);// thickness of wall
+        wallLeft.setElasticity(0.5);
+        this._space.addStaticShape(wallLeft);
+
+        var wallRight = new cp.SegmentShape(this._space.staticBody,
+            cp.v(640, 0),// start point
+            cp.v(640, 4294967295),// MAX INT:4294967295
+            0);// thickness of wall
+        wallLeft.setElasticity(0.5);
+        this._space.addStaticShape(wallRight);
+
+
+        for(var y = 0; y < 10; y++) {
+            for (var x = 0; x < 20; x++) {
+                var c = model[y][x];
+                if(c != ' ') {
+                    //add box
+                    var box = new cp.BoxShape2(this._space.staticBody, {l:x*32,r:x*32+32,b:(9-y)*32,t:(9-y)*32+32});
+                    box.setElasticity(0.5);
+                    this._space.addStaticShape(box);
+                }
+            }
+        }
+
+
+        var sprite = new cc.PhysicsSprite(res.Tiles_png, cc.rect(224, 64, 32, 32));
+        var contentSize = sprite.getContentSize();
+        var body = new cp.Body(1, cp.momentForBox(1, contentSize.width, contentSize.height));
+        body.p = cc.p(50, 250);
+        body.setMoment(Infinity);
+        body.applyImpulse(cp.v(300, 0), cp.v(0, 0.4));//run speed
+        this._space.addBody(body);
+        var shape = new cp.BoxShape(body, contentSize.width, contentSize.height);
+        shape.setElasticity(0.5);
+        this._space.addShape(shape);
+        sprite.setBody(body);
+        this.addChild(sprite, 0);
+        this.player = sprite;
+
+
+
+        //Set up keyboard listener
+        if ('keyboard' in cc.sys.capabilities) {
+            var listener = cc.EventListener.create({event: cc.EventListener.KEYBOARD});
+            var thisLayer = this;
+            listener.onKeyPressed = function (keyCode, event) {
+                console.log("Key pressed " + keyCode)
+                if(thisLayer.timeSinceLastJump > 0.5) {
+                    if(keyCode == '65') {
+                        thisLayer.player.body.applyImpulse(cp.v(-300, 300), cp.v(0, 0));//run speed
+                        thisLayer.timeSinceLastJump = 0;
+                    }
+                    if(keyCode == '68') {
+                        thisLayer.player.body.applyImpulse(cp.v(300, 300), cp.v(0, 0));//run speed
+                        thisLayer.timeSinceLastJump = 0;
+                    }
+                }
+            }
+            cc.eventManager.addListener(listener, this);
+        }
+
+
+        this.scheduleUpdate();
+    },
+    update: function(dt) {
+        var vmsg = "Velocity: " + this.player.body.vx + "," + this.player.body.vy;
+
+        this.timeSinceLastJump += dt;
+
+        this.player.body.vx *= 0.99;
+        this.player.body.vy *= 0.99;
+        console.log(vmsg);
+        this._space.step(dt);
+    }
+});
+
+
+
 /*
 var SpritesLayer = cc.Layer.extend({
     sprite:null,
@@ -191,31 +293,4 @@ var SpritesLayer = cc.Layer.extend({
     }
 });
 */
-var GameScene = cc.Scene.extend({
-    onEnter:function () {
-        this._super();
-
-        var model = [];
-        model.push('                    ');
-        model.push('                    ');
-        model.push('            =====\\  ');
-        model.push('/===\\               ');
-        model.push('                    ');
-        model.push('  ======            ');
-        model.push('                    ');
-        model.push('  /===========      ');
-        model.push('                    ');
-        model.push('====================');
-
-        this.addChild(new BackgroundLayer());
-        this.addChild(new TileLayer(model));
-        //this.addChild(new ManyTilesSpeedTestLayer());
-        this.addChild(new SpriteLayer(model));
-//        var tileLayers = new TileLayers();
-//        this.addChild(tileLayers.behind());
-//        this.addChild(new SpriteLayer());
-//        this.addChild(tileLayers.ontop());
-    }
-});
-
 
