@@ -1,28 +1,71 @@
 
 
-
-var BackgroundLayer = cc.Layer.extend({
-    sprite:null,
-    ctor:function () {
-
-        this._super();
-
-        var size = cc.winSize;
-
-        // add "HelloWorld" splash screen"
-        this.sprite = new cc.Sprite(res.Sky_png);
-        this.sprite.attr({
-            x: size.width / 2,
-            y: size.height / 2,
-        });
-        this.sprite.scaleX = 1.33;
-        this.addChild(this.sprite, 0);
-
-        return true;
+var ParallaxContainer = cc.Layer.extend({
+    parallaxLayers: [],
+    scrollX:0,
+    scrollY:0,
+    addParallaxLayer: function(layer, offsetX, offsetY, scrollScale) {
+        this.addChild(layer);
+        this.parallaxLayers.push({layer: layer, offsetX: offsetX, offsetY: offsetY, scrollScale: scrollScale})
+        this._updateLayerPositions();
+    },
+    setScrollPosition: function(scrollX, scrollY) {
+        this.scrollX = scrollX;
+        this.scrollY = scrollY;
+        this._updateLayerPositions();
+    },
+    _updateLayerPositions: function() {
+        for(var i = 0; i < this.parallaxLayers.length; i++) {
+            var l = this.parallaxLayers[i];
+            var px = l.offsetX - l.scrollScale * this.scrollX;
+            var py = l.offsetY - l.scrollScale * this.scrollY;
+            l.layer.setPositionX(px);
+            l.layer.setPositionY(py);
+        }
     }
 });
 
-var TileLayer = cc.SpriteBatchNode.extend({
+
+
+var BackgroundAndGameLayers = ParallaxContainer.extend({
+
+    ctor:function (gameLayer, gameWidth, gameHeight) {
+        this._super();
+        var size = cc.winSize;
+        cc.spriteFrameCache.addSpriteFrames(res.Backgrounds_plist);
+
+        var centerX = size.width / 2;
+        var centerY = size.height/ 2;
+
+        var sky = new cc.Sprite("#Sky.png");
+        this.addParallaxLayer(sky, centerX, centerY, 0.1)
+
+        var clouds = new cc.Sprite("#Clouds.png");
+        clouds.setScale(1.5, 1.5);
+        this.addParallaxLayer(clouds, centerX, centerY+200, 0.15)
+
+        var mountains = new cc.Sprite("#Mountains.png");
+        mountains.setScale(1.5, 1.5);
+        this.addParallaxLayer(mountains, centerX, centerY, 0.22)
+
+        var grass = new cc.Sprite("#Grass.png");
+        grass.setScale(1.5, 1.5);
+        this.addParallaxLayer(grass, centerX, centerY-400, 0.3)
+
+        //finally add the game layer
+        this.addParallaxLayer(gameLayer, centerX-(gameWidth/2), centerY-(gameHeight/2), 1.0, 1.0)
+
+        //this.scheduleUpdate();
+        return true;
+    },
+    totalTime:0,
+    update: function(dt) {
+        this.totalTime += dt;
+        //this.setScrollPosition(480*Math.sin(this.totalTime), 240*Math.sin(this.totalTime*0.7));
+    }
+});
+
+/*var TileLayer = cc.SpriteBatchNode.extend({
     tileSize: 32,
     textureWidth: 256,
 
@@ -61,6 +104,83 @@ var TileLayer = cc.SpriteBatchNode.extend({
         for(var i = 0; i < this.getChildrenCount(); i++)
             this.removeChild(0);
     }
+});*/
+
+
+var TileLayer = cc.SpriteBatchNode.extend({
+
+    ctor:function (model) {
+        this._super(res.Sprites_png, 80);
+        cc.spriteFrameCache.addSpriteFrames(res.Sprites_plist);
+
+        this.initFromModel(model);
+
+        return true;
+    },
+    initFromModel: function(model) {
+
+
+        this._clearChildren();
+        for(var y = 0; y < globals.config.levelHeight; y++)
+        {
+            for(var x = 0; x < globals.config.levelWidth; x++)
+            {
+                var c = model[y][x];
+                var spriteName = null;
+                if(c=='/') spriteName = "#EarthBlockUpLeft.png";
+                if(c=='=') spriteName = "#EarthBlock.png";
+                if(c=='\\') spriteName = "#EarthBlockUpRight.png";
+                if(spriteName)
+                {
+                    var tile = new cc.Sprite(spriteName);
+                    tile.setPositionX((x+0.5)*globals.config.tileSize);
+                    tile.setPositionY((globals.config.levelHeight-y-0.5)*globals.config.tileSize);
+                    this.addChild(tile);
+                }
+            }
+        }
+    },
+    _clearChildren: function() {
+        var numChildren = this.getChildrenCount();
+        for(var i = 0; i < this.getChildrenCount(); i++)
+            this.removeChild(0);
+    }
+
+
+/*
+
+    ctor: function () {
+        this._super();
+        this.init(res.Sprites_png, 80);
+        //var atlas = new cc.TextureAtlas(res.Sprites_png, 20);
+        cc.spriteFrameCache.addSpriteFrames(res.Sprites_plist);
+        this.initialize();
+    },
+
+    initialize: function() {
+        this.heights = [10,9,8,9,10,9,8,9,10,9];
+        this._replaceSprites();
+        //this.addChild(new cc.Sprite("#pipeGreen_13.png"))
+
+    },
+    _replaceSprites: function() {
+        this.removeAllChildren();
+        for(var x = 0; x < this.heights.length; x++) {
+            var height = this.heights[x];
+            for(var y = 0; y < height; y++) {
+                var s = new cc.Sprite("#Prince.png");
+                s.setPositionX(x * 80+40);
+                s.setPositionY(y * 32);
+                s.setScale(0.4);
+                this.addChild(s);
+            }
+        }
+    }
+
+  */
+
+
+
 });
 
 var ManyTilesSpeedTestLayer = cc.SpriteBatchNode.extend({
@@ -135,7 +255,7 @@ var PhysicsTestLayer = cc.Layer.extend({
 
 
         for(var y = 0; y < 10; y++) {
-            for (var x = 0; x < 20; x++) {
+            for (var x = 0; x < 15; x++) {
                 var c = model[y][x];
                 if(c != ' ') {
                     //add box
@@ -177,8 +297,12 @@ var SpritesLayer = cc.Layer.extend({
     _space: null,
     player: null,
     timeSinceLastJump: 0.0,
-    ctor:function (model) {
+    playerPositionListener: null,
+    keyDownLeft: false,
+    keyDownRight: false,
+    ctor:function (model, playerPositionListener) {
         this._super();
+        this.playerPositionListener = playerPositionListener;
         var size = cc.director.getWinSize();
 
         this._space = new cp.Space();
@@ -199,19 +323,23 @@ var SpritesLayer = cc.Layer.extend({
         this._space.addStaticShape(wallLeft);
 
         var wallRight = new cp.SegmentShape(this._space.staticBody,
-            cp.v(640, 0),// start point
-            cp.v(640, 4294967295),// MAX INT:4294967295
+            cp.v(globals.config.tileSize * globals.config.levelWidth, 0),// start point
+            cp.v(globals.config.tileSize * globals.config.levelWidth, 4294967295),// MAX INT:4294967295
             0);// thickness of wall
         wallLeft.setElasticity(0.5);
         this._space.addStaticShape(wallRight);
 
-
-        for(var y = 0; y < 10; y++) {
-            for (var x = 0; x < 20; x++) {
+        var tileSize=globals.config.tileSize;
+        for(var y = 0; y < globals.config.levelHeight; y++) {
+            for (var x = 0; x < globals.config.levelWidth; x++) {
                 var c = model[y][x];
                 if(c != ' ') {
                     //add box
-                    var box = new cp.BoxShape2(this._space.staticBody, {l:x*32,r:x*32+32,b:(9-y)*32,t:(9-y)*32+32});
+                    var box = new cp.BoxShape2(this._space.staticBody,
+                            {l:x*tileSize,
+                            r:x*tileSize+tileSize,
+                            b:(globals.config.levelHeight-1-y)*tileSize,
+                            t:(globals.config.levelHeight-1-y)*tileSize+tileSize});
                     box.setElasticity(0.5);
                     this._space.addStaticShape(box);
                 }
@@ -233,8 +361,22 @@ var SpritesLayer = cc.Layer.extend({
         this.addChild(sprite, 0);
         this.player = sprite;
 
+        //Set up keyboard listener
+        if ('keyboard' in cc.sys.capabilities) {
+            var listener = cc.EventListener.create({event: cc.EventListener.KEYBOARD});
+            var that = this;
+            listener.onKeyPressed = function (keyCode, event) {
+                if(keyCode == '65') { that.keyDownLeft = true; }
+                if(keyCode == '68') { that.keyDownRight = true; }
+            }
+            listener.onKeyReleased = function (keyCode, event) {
+                if(keyCode == '65') { that.keyDownLeft = false; }
+                if(keyCode == '68') { that.keyDownRight = false; }
+            }
+            cc.eventManager.addListener(listener, this);
+        }
 
-
+/*
         //Set up keyboard listener
         if ('keyboard' in cc.sys.capabilities) {
             var listener = cc.EventListener.create({event: cc.EventListener.KEYBOARD});
@@ -254,19 +396,28 @@ var SpritesLayer = cc.Layer.extend({
             }
             cc.eventManager.addListener(listener, this);
         }
-
+*/
 
         this.scheduleUpdate();
     },
     update: function(dt) {
-        var vmsg = "Velocity: " + this.player.body.vx + "," + this.player.body.vy;
-
         this.timeSinceLastJump += dt;
+
+        if(this.keyDownLeft || this.keyDownRight) {
+            var directionX = 0;
+            if(this.keyDownLeft) directionX -= 1;
+            if(this.keyDownRight) directionX += 1;
+            this.player.body.applyImpulse(cp.v(directionX * 10, 20), cp.v(0, 0));
+        }
 
         this.player.body.vx *= 0.99;
         this.player.body.vy *= 0.99;
-        console.log(vmsg);
+
         this._space.step(dt);
+
+        if(this.playerPositionListener) {
+            this.playerPositionListener(this.player.getPositionX(), this.player.getPositionY());
+        }
     }
 });
 

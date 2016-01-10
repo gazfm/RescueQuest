@@ -11,6 +11,7 @@
     "modules" : ["cocos2d", "chipmunk", "physics"],
 
     "jsList" : [
+        "src/globals.js",
         "src/resource.js",
         "src/layers.js",
         "src/appstate.js"

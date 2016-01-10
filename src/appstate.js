@@ -112,7 +112,7 @@ var MessageScene = GameStateSceneBase.extend({
     },
     onEnter: function () {
         this._super();
-        this.addChild(new BackgroundLayer());
+        //this.addChild(new BackgroundLayer());
         var that = this;
         this.addChild(new MessageLayer(this.message, function () {
             that.gameStateHandler.keyPressed();
@@ -123,6 +123,7 @@ var MessageScene = GameStateSceneBase.extend({
 
 var GameScene = GameStateSceneBase.extend({
     level: 0,
+    scrollingContainer: null,
     ctor: function(level, handler) {
         this._super(handler);
         this.level = level;
@@ -133,66 +134,100 @@ var GameScene = GameStateSceneBase.extend({
         var model = [];
         switch((this.level - 1) % 4) {
             case 0:
-                model.push('                    ');
-                model.push('                    ');
-                model.push('            =====\\  ');
-                model.push('/===\\               ');
-                model.push('                    ');
-                model.push('  ======            ');
-                model.push('                    ');
-                model.push('  /===========      ');
-                model.push('                    ');
-                model.push('====================');
+                model.push('==============================');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('=========  ===========       =');
+                model.push('=                            =');
+                model.push('======== ====== = =          =');
+                model.push('=                   ==       =');
+                model.push('=                            =');
+                model.push('=                ===         =');
+                model.push('=             ===            =');
+                model.push('=                            =');
+                model.push('=        ===           =======');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('=      ==   =    =           =');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('=               =            =');
+                model.push('=                            =');
+                model.push('==============================');
                 break;
             case 1:
-                model.push('====================');
-                model.push('=                  =');
-                model.push('=                  =');
-                model.push('=======            =');
-                model.push('=                  =');
-                model.push('=                  =');
-                model.push('=            =======');
-                model.push('=                  =');
-                model.push('=                  =');
-                model.push('====================');
+                model.push('==============================');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('=======                      =');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('=                      =======');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('==============================');
                 break;
             case 2:
-                model.push('====================');
-                model.push('=                  =');
-                model.push('=         =====    =');
-                model.push('=======            =');
-                model.push('=         =====    =');
-                model.push('=                  =');
-                model.push('=            =======');
-                model.push('=   =====          =');
-                model.push('=            =     =');
-                model.push('====================');
+                model.push('                              ');
+                model.push('                              ');
+                model.push('            =====\\            ');
+                model.push('/===\\                         ');
+                model.push('                              ');
+                model.push('  ======                      ');
+                model.push('                              ');
+                model.push('  /===========                ');
+                model.push('                              ');
+                model.push('====================          ');
+                model.push('                              ');
+                model.push('                              ');
+                model.push('            =====\\            ');
+                model.push('/===\\                         ');
+                model.push('                              ');
+                model.push('  ======                      ');
+                model.push('                              ');
+                model.push('  /===========                ');
+                model.push('                              ');
+                model.push('====================          ');
                 break;
             case 3:
-                model.push('                    ');
-                model.push('                    ');
-                model.push('   =  =     =====   ');
-                model.push('=========  ======== ');
-                model.push('                    ');
-                model.push('  ====   ========   ');
-                model.push('                    ');
-                model.push('======= ======      ');
-                model.push('                    ');
-                model.push('====================');
+                model.push('==============================');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('=======                      =');
+                model.push('=     ==========             =');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('=             ==========     =');
+                model.push('=                            =');
+                model.push('=                      =======');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('=             ==========     =');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('=     ===========            =');
+                model.push('=                            =');
+                model.push('=                            =');
+                model.push('==============================');
                 break;
         }
 
-        this.addChild(new BackgroundLayer());
-        this.addChild(new TileLayer(model));
-        //this.addChild(new ManyTilesSpeedTestLayer());
-        //this.addChild(new PhysicsTestLayer(model));
-        this.addChild(new SpritesLayer(model));
-//        var tileLayers = new TileLayers();
-//        this.addChild(tileLayers.behind());
-//        this.addChild(new PhysicsTestLayer());
-//        this.addChild(tileLayers.ontop());
         var that = this;
-        this.addChild(new GameLayer(
+        var gameLayer = new cc.Layer();
+        gameLayer.addChild(new TileLayer(model));
+        gameLayer.addChild(new SpritesLayer(model, function(x, y) {that.updateScrollPosition(x,y)}));
+        gameLayer.addChild(new GameLayer(
             function () {
                 that.gameStateHandler.crash();
             },
@@ -200,6 +235,31 @@ var GameScene = GameStateSceneBase.extend({
                 that.gameStateHandler.win();
             }
         ));
+        var levelWidthPx = globals.config.levelWidth * globals.config.tileSize;
+        var levelHeightPx = globals.config.levelHeight * globals.config.tileSize;
+        this.scrollingContainer = new BackgroundAndGameLayers(gameLayer, levelWidthPx, levelHeightPx);
+        this.addChild(this.scrollingContainer);
+
+        var that = this;
+    },
+    updateScrollPosition: function(playerX, playerY) {
+        //playerX and playerY are the player position relative to the bottom left of the level
+        //The parallax layers are set up so that a scroll position of (0,0) shows the middle of the level in the middle of the screen
+        var levelWidthPx = globals.config.levelWidth * globals.config.tileSize;
+        var levelHeightPx = globals.config.levelHeight * globals.config.tileSize;
+        var resolutionWidth = globals.config.resolutionWidth;
+        var resolutionHeight = globals.config.resolutionHeight;
+        //keep player in the middle:
+
+        var playerXNormalized = (playerX / levelWidthPx) * 2 -1;    //-1 to 1, left to right
+        var playerYNormalized = (playerY / levelHeightPx) * 2 -1;
+
+        var maxScrollX = Math.max(0, (levelWidthPx - resolutionWidth) / 2);
+        var maxScrollY = Math.max(0, (levelHeightPx - resolutionHeight) / 2);
+
+        if(this.scrollingContainer) {
+            this.scrollingContainer.setScrollPosition(maxScrollX * playerXNormalized, maxScrollY * playerYNormalized);
+        }
     }
 });
 
