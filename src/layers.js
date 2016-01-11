@@ -65,47 +65,6 @@ var BackgroundAndGameLayers = ParallaxContainer.extend({
     }
 });
 
-/*var TileLayer = cc.SpriteBatchNode.extend({
-    tileSize: 32,
-    textureWidth: 256,
-
-    ctor:function (model) {
-        this._super(res.Tiles_png, 100);
-
-        this.initFromModel(model);
-
-        return true;
-    },
-    initFromModel: function(model) {
-
-
-        this._clearChildren();
-        for(var y = 0; y < 10; y++)
-        {
-            for(var x = 0; x < 20; x++)
-            {
-                var c = model[y][x];
-                var t = -1;
-                if(c=='/') t = 0;
-                if(c=='=') t = 1;
-                if(c=='\\') t = 2;
-                if(t >= 0)
-                {
-                    var tile = new cc.Sprite(res.Tiles_png, cc.rect(t * this.tileSize, Math.floor(t/(this.textureWidth/this.tileSize)), this.tileSize, this.tileSize));
-                    tile.setPositionX((x+0.5)*this.tileSize);
-                    tile.setPositionY(320-(y+0.5)*this.tileSize);
-                    this.addChild(tile);
-                }
-            }
-        }
-    },
-    _clearChildren: function() {
-        var numChildren = this.getChildrenCount();
-        for(var i = 0; i < this.getChildrenCount(); i++)
-            this.removeChild(0);
-    }
-});*/
-
 
 var TileLayer = cc.SpriteBatchNode.extend({
 
@@ -145,41 +104,6 @@ var TileLayer = cc.SpriteBatchNode.extend({
         for(var i = 0; i < this.getChildrenCount(); i++)
             this.removeChild(0);
     }
-
-
-/*
-
-    ctor: function () {
-        this._super();
-        this.init(res.Sprites_png, 80);
-        //var atlas = new cc.TextureAtlas(res.Sprites_png, 20);
-        cc.spriteFrameCache.addSpriteFrames(res.Sprites_plist);
-        this.initialize();
-    },
-
-    initialize: function() {
-        this.heights = [10,9,8,9,10,9,8,9,10,9];
-        this._replaceSprites();
-        //this.addChild(new cc.Sprite("#pipeGreen_13.png"))
-
-    },
-    _replaceSprites: function() {
-        this.removeAllChildren();
-        for(var x = 0; x < this.heights.length; x++) {
-            var height = this.heights[x];
-            for(var y = 0; y < height; y++) {
-                var s = new cc.Sprite("#Prince.png");
-                s.setPositionX(x * 80+40);
-                s.setPositionY(y * 32);
-                s.setScale(0.4);
-                this.addChild(s);
-            }
-        }
-    }
-
-  */
-
-
 
 });
 
@@ -221,74 +145,6 @@ var ManyTilesSpeedTestLayer = cc.SpriteBatchNode.extend({
     }
 });
 
-
-
-var PhysicsTestLayer = cc.Layer.extend({
-    _space: null,
-    ctor:function (model) {
-        this._super();
-        var size = cc.director.getWinSize();
-
-        this._space = new cp.Space();
-        this._space.gravity = cp.v(0, -350);
-
-        var wallBottom = new cp.SegmentShape(this._space.staticBody,
-            cp.v(0, 0),// start point
-            cp.v(4294967295, 0),// MAX INT:4294967295
-            0);// thickness of wall
-        wallBottom.setElasticity(0.5);
-        this._space.addStaticShape(wallBottom);
-
-        var wallLeft = new cp.SegmentShape(this._space.staticBody,
-            cp.v(0, 0),// start point
-            cp.v(0, 4294967295),// MAX INT:4294967295
-            0);// thickness of wall
-        wallLeft.setElasticity(0.5);
-        this._space.addStaticShape(wallLeft);
-
-        var wallRight = new cp.SegmentShape(this._space.staticBody,
-            cp.v(640, 0),// start point
-            cp.v(640, 4294967295),// MAX INT:4294967295
-            0);// thickness of wall
-        wallLeft.setElasticity(0.5);
-        this._space.addStaticShape(wallRight);
-
-
-        for(var y = 0; y < 10; y++) {
-            for (var x = 0; x < 15; x++) {
-                var c = model[y][x];
-                if(c != ' ') {
-                    //add box
-                    var box = new cp.BoxShape2(this._space.staticBody, {l:x*32,r:x*32+32,b:(9-y)*32,t:(9-y)*32+32});
-                    box.setElasticity(0.5);
-                    this._space.addStaticShape(box);
-                }
-            }
-        }
-
-
-        for(var i = 0; i < 5; i++)
-        {
-            var sprite = new cc.PhysicsSprite(res.Tiles_png, cc.rect(224, 64, 32, 32));
-            var contentSize = sprite.getContentSize();
-            var body = new cp.Body(1, cp.momentForBox(1, contentSize.width, contentSize.height));
-            body.p = cc.p(i*50, 400);
-            body.applyImpulse(cp.v(300, 0), cp.v(0, 0.4));//run speed
-            this._space.addBody(body);
-            var shape = new cp.BoxShape(body, contentSize.width, contentSize.height);
-            shape.setElasticity(0.5);
-            this._space.addShape(shape);
-            sprite.setBody(body);
-            this.addChild(sprite, 0);
-        }
-
-
-        this.scheduleUpdate();
-    },
-    update: function(dt) {
-        this._space.step(dt);
-    }
-});
 
 
 
@@ -346,7 +202,6 @@ var SpritesLayer = cc.Layer.extend({
             }
         }
 
-
         var sprite = new cc.PhysicsSprite(res.Tiles_png, cc.rect(224, 64, 32, 32));
         var contentSize = sprite.getContentSize();
         var body = new cp.Body(1, cp.momentForBox(1, contentSize.width, contentSize.height));
@@ -376,28 +231,6 @@ var SpritesLayer = cc.Layer.extend({
             cc.eventManager.addListener(listener, this);
         }
 
-/*
-        //Set up keyboard listener
-        if ('keyboard' in cc.sys.capabilities) {
-            var listener = cc.EventListener.create({event: cc.EventListener.KEYBOARD});
-            var thisLayer = this;
-            listener.onKeyPressed = function (keyCode, event) {
-                console.log("Key pressed " + keyCode)
-                if(thisLayer.timeSinceLastJump > 0.5) {
-                    if(keyCode == '65') {
-                        thisLayer.player.body.applyImpulse(cp.v(-300, 300), cp.v(0, 0));//run speed
-                        thisLayer.timeSinceLastJump = 0;
-                    }
-                    if(keyCode == '68') {
-                        thisLayer.player.body.applyImpulse(cp.v(300, 300), cp.v(0, 0));//run speed
-                        thisLayer.timeSinceLastJump = 0;
-                    }
-                }
-            }
-            cc.eventManager.addListener(listener, this);
-        }
-*/
-
         this.scheduleUpdate();
     },
     update: function(dt) {
@@ -421,27 +254,4 @@ var SpritesLayer = cc.Layer.extend({
     }
 });
 
-
-
-/*
-var SpritesLayer = cc.Layer.extend({
-    sprite:null,
-    ctor:function () {
-
-        this._super();
-
-        var size = cc.winSize;
-
-        // add "HelloWorld" splash screen"
-        this.sprite = new cc.Sprite(res.Sky_png);
-        this.sprite.attr({
-            x: size.width / 2,
-            y: size.height / 2,
-        });
-        this.addChild(this.sprite, 0);
-
-        return true;
-    }
-});
-*/
 

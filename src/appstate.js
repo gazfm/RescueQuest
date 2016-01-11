@@ -11,13 +11,6 @@ var GameLayer = cc.Layer.extend({
 
         var size = cc.winSize;
 
-         //Label
-         var helloLabel = new cc.LabelTTF("GOOD GAME", "Arial", 38);
-         helloLabel.x = size.width / 2;
-         helloLabel.y = 0;
-         this.addChild(helloLabel, 5);
-
-
         //Set up keyboard listener
         if ('keyboard' in cc.sys.capabilities) {
             var listener = cc.EventListener.create({event: cc.EventListener.KEYBOARD});
@@ -39,26 +32,7 @@ var GameLayer = cc.Layer.extend({
          //draw.drawDot(new cc.Point(300,100), 150);
          //this.addChild(draw, 1);
 
-        /*
-        this.addChild(new CityLayer(), 2);
-
-        this.ship = new FlyingSaucer();
-        this.addChild(this.ship, 3);
-
-        for(var i = 0; i < 10; i++) {
-            var b = new Bomb();
-            this.bombs.push(b);
-            this.addChild(b);
-        }
-        */
-
-        this.scheduleUpdate();
-
         return true;
-    },
-    update: function(dt) {
-        //
-
     }
 });
 
