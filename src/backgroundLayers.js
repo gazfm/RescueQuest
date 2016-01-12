@@ -2,30 +2,6 @@
  * Created by garry on 10/03/15.
  */
 
-var ParallaxContainer = cc.Layer.extend({
-    parallaxLayers: [],
-    scrollX:0,
-    scrollY:0,
-    addParallaxLayer: function(layer, offsetX, offsetY, scrollScale) {
-        this.addChild(layer);
-        this.parallaxLayers.push({layer: layer, offsetX: offsetX, offsetY: offsetY, scrollScale: scrollScale})
-        this._updateLayerPositions();
-    },
-    setScrollPosition: function(scrollX, scrollY) {
-        this.scrollX = scrollX;
-        this.scrollY = scrollY;
-        this._updateLayerPositions();
-    },
-    _updateLayerPositions: function() {
-        for(var i = 0; i < this.parallaxLayers.length; i++) {
-            var l = this.parallaxLayers[i];
-            var px = l.offsetX - l.scrollScale * this.scrollX;
-            var py = l.offsetY - l.scrollScale * this.scrollY;
-            l.layer.setPositionX(px);
-            l.layer.setPositionY(py);
-        }
-    }
-});
 
 
 var BackgroundAndGameLayers = ParallaxContainer.extend({

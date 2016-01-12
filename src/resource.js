@@ -7,7 +7,7 @@ var res = {
     Sprites_png: "res/sprites.png",
     Sprites_plist: "res/sprites.plist",
     Backgrounds_png: "res/backgrounds.png",
-    Backgrounds_plist: "res/backgrounds.plist"
+    Backgrounds_plist: "res/backgrounds.plist",
 };
 
 var g_resources = [];

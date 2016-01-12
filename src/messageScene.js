@@ -5,29 +5,7 @@
  *
  */
 
-var MessageLayer = cc.Layer.extend({
-    ctor:function (message, onKeyPressed) {
-        this._super();
 
-        var size = cc.winSize;
-
-        var message = new cc.LabelTTF(message, "Arial", 38);
-        message.x = size.width / 2;
-        message.y = 100;
-        this.addChild(message, 5);
-
-        if ('keyboard' in cc.sys.capabilities) {
-            var listener = cc.EventListener.create({event: cc.EventListener.KEYBOARD});
-            var thisLayer = this;
-            listener.onKeyPressed = function (keyCode, event) {
-                onKeyPressed();
-            }
-            cc.eventManager.addListener(listener, this);
-        }
-
-        return true;
-    }
-});
 
 
 var MessageScene = cc.Scene.extend({

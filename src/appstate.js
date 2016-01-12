@@ -8,6 +8,7 @@ function StartGameStateMachine() {
     var lives = 5;
     var score = 0;
     var level = 1;
+    var levelDefinition = null;
 
 
     var StartMenuScene = MessageScene.extend({
@@ -18,13 +19,13 @@ function StartGameStateMachine() {
 
     var LifeLostScene = MessageScene.extend({
         ctor: function() {
-            this._super("Try again, lives remaining: " + lives, {keyPressed: changeStateContinueGame});
+            this._super("Try again, lives remaining: " + lives, {keyPressed: changeStatePlayLevel});
         }
     });
 
     var NextLevelScene = MessageScene.extend({
         ctor: function() {
-            this._super("Proceed to level " + level, {keyPressed: changeStateContinueGame});
+            this._super("Proceed to level " + level, {keyPressed: changeStateLoadLevel});
         }
     });
 
@@ -49,11 +50,20 @@ function StartGameStateMachine() {
     function changeStateStartGame() {
         lives = 5;
         level = 1;
-        cc.director.runScene(new GameScene(level, {crash: changeStateCrash, win: changeStateWin}));
+        changeStateLoadLevel();
     }
 
-    function changeStateContinueGame() {
-        cc.director.runScene(new GameScene(level, {crash: changeStateCrash, win: changeStateWin}));
+    function changeStateLoadLevel() {
+        cc.director.runScene(new LoadLevelScene(level, {fail: changeStateStartMenu,
+                                                        levelLoaded: function(l) {
+                                                            levelDefinition = l;
+                                                            changeStatePlayLevel();
+                                                        }}));
+    }
+
+
+    function changeStatePlayLevel() {
+        cc.director.runScene(new GameScene(levelDefinition, {crash: changeStateCrash, win: changeStateWin}));
     }
 
 
