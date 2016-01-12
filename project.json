@@ -13,7 +13,9 @@
     "jsList" : [
         "src/globals.js",
         "src/resource.js",
-        "src/layers.js",
+        "src/backgroundLayers.js",
+        "src/gameScene.js",
+        "src/messageScene.js",
         "src/appstate.js"
     ]
 }
