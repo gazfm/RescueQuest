@@ -20,9 +20,6 @@ var TileFactory = cc.Class.extend({
         this.tileCache['='] = new Tile("EarthBlock.png", true);
     },
     getTileForCharacter: function(c) {
-        if(this.nullTileCharacters.indexOf(c) > -1) {
-            return this.tileCache[' '];
-        }
         return this.tileCache[c];
     }
 });
@@ -32,14 +29,38 @@ var LevelMap = cc.Class.extend({
     width: 0,   //in tiles
     height: 0,  //in tiles
     tiles: [],
+    playerStartPosition: null,
+    princessPosition: null,
+    baddyStartPositions: {},
     ctor: function(levelDefinition) {
         this.width = levelDefinition.width;
         this.height = levelDefinition.height;
         var tileFactory = new TileFactory();
+
         for(var y = 0; y < this.height; y++) {
             var row = [];
             for(var x = 0; x < this.width; x++) {
-                row.push(tileFactory.getTileForCharacter(levelDefinition.tiles[y][x]))
+                var tileChar = levelDefinition.tiles[y][x];
+
+                if("ps0123456789".indexOf(tileChar) > -1) {
+                    //it's a special character to specify a characters starting position
+                    var posX = (x + 0.5) * globals.config.tileSize;
+                    var posY = (this.height - y - 0.5) * globals.config.tileSize;
+                    var pos = cc.p(posX, posY);
+                    if(tileChar == "p") {
+                        this.princessPosition= pos;
+                    } else if(tileChar == "s") {
+                        this.playerStartPosition = pos;
+                    } else {
+                        var index = parseInt(tileChar);
+                        this.baddyStartPositions[index] = pos;
+                    }
+
+                    tileChar = ' '; //replace with empty tile
+                }
+
+                row.push(tileFactory.getTileForCharacter(tileChar));
+
             }
             this.tiles.push(row);
         }

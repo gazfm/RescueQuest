@@ -105,9 +105,8 @@ var SpritesLayer = cc.Layer.extend({
         var sprite = new cc.PhysicsSprite(res.Tiles_png, cc.rect(224, 64, 32, 32));
         var contentSize = sprite.getContentSize();
         var body = new cp.Body(1, cp.momentForBox(1, contentSize.width, contentSize.height));
-        body.p = cc.p(50, 250);
+        body.p = levelMap.playerStartPosition;
         body.setMoment(Infinity);
-        body.applyImpulse(cp.v(300, 0), cp.v(0, 0.4));//run speed
         this._space.addBody(body);
         var shape = new cp.BoxShape(body, contentSize.width, contentSize.height);
         shape.setElasticity(0.5);
