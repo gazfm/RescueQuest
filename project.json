@@ -14,6 +14,7 @@
         "src/globals.js",
         "src/resource.js",
         "src/LevelDefinition.js",
+        "src/LevelMap.js",
         "src/sharedLayers.js",
         "src/backgroundLayers.js",
         "src/gameScene.js",

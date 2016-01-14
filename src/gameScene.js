@@ -4,15 +4,15 @@
 
 var TileLayer = cc.SpriteBatchNode.extend({
 
-    ctor:function (model) {
+    ctor:function (levelMap) {
         this._super(res.Sprites_png, 80);
         cc.spriteFrameCache.addSpriteFrames(res.Sprites_plist);
 
-        this.initFromModel(model);
+        this.initFromModel(levelMap);
 
         return true;
     },
-    initFromModel: function(model) {
+    initFromModel: function(levelMap) {
 
 
         this._clearChildren();
@@ -20,14 +20,10 @@ var TileLayer = cc.SpriteBatchNode.extend({
         {
             for(var x = 0; x < globals.config.levelWidth; x++)
             {
-                var c = model[y][x];
-                var spriteName = null;
-                if(c=='/') spriteName = "#EarthBlockUpLeft.png";
-                if(c=='=') spriteName = "#EarthBlock.png";
-                if(c=='\\') spriteName = "#EarthBlockUpRight.png";
-                if(spriteName)
+                var tile = levelMap.tiles[y][x];
+                if(tile.imageFilename)
                 {
-                    var tile = new cc.Sprite(spriteName);
+                    var tile = new cc.Sprite("#" + tile.imageFilename);
                     tile.setPositionX((x+0.5)*globals.config.tileSize);
                     tile.setPositionY((globals.config.levelHeight-y-0.5)*globals.config.tileSize);
                     this.addChild(tile);
@@ -91,7 +87,8 @@ var SpritesLayer = cc.Layer.extend({
     playerPositionListener: null,
     keyDownLeft: false,
     keyDownRight: false,
-    ctor:function (model, playerPositionListener) {
+    //baddies: null,
+    ctor:function (levelMap, playerPositionListener) {
         this._super();
         this.playerPositionListener = playerPositionListener;
         var size = cc.director.getWinSize();
@@ -99,42 +96,10 @@ var SpritesLayer = cc.Layer.extend({
         this._space = new cp.Space();
         this._space.gravity = cp.v(0, -350);
 
-        var wallBottom = new cp.SegmentShape(this._space.staticBody,
-            cp.v(0, 0),// start point
-            cp.v(4294967295, 0),// MAX INT:4294967295
-            0);// thickness of wall
-        wallBottom.setElasticity(0.5);
-        this._space.addStaticShape(wallBottom);
-
-        var wallLeft = new cp.SegmentShape(this._space.staticBody,
-            cp.v(0, 0),// start point
-            cp.v(0, 4294967295),// MAX INT:4294967295
-            0);// thickness of wall
-        wallLeft.setElasticity(0.5);
-        this._space.addStaticShape(wallLeft);
-
-        var wallRight = new cp.SegmentShape(this._space.staticBody,
-            cp.v(globals.config.tileSize * globals.config.levelWidth, 0),// start point
-            cp.v(globals.config.tileSize * globals.config.levelWidth, 4294967295),// MAX INT:4294967295
-            0);// thickness of wall
-        wallLeft.setElasticity(0.5);
-        this._space.addStaticShape(wallRight);
-
-        var tileSize=globals.config.tileSize;
-        for(var y = 0; y < globals.config.levelHeight; y++) {
-            for (var x = 0; x < globals.config.levelWidth; x++) {
-                var c = model[y][x];
-                if(c != ' ') {
-                    //add box
-                    var box = new cp.BoxShape2(this._space.staticBody,
-                        {l:x*tileSize,
-                            r:x*tileSize+tileSize,
-                            b:(globals.config.levelHeight-1-y)*tileSize,
-                            t:(globals.config.levelHeight-1-y)*tileSize+tileSize});
-                    box.setElasticity(0.5);
-                    this._space.addStaticShape(box);
-                }
-            }
+        //TODO: uncouple levelMap from chipmonk (it's annoying that we pass in staticBody below)
+        var collisionShapes = levelMap.getCollisionShapes(this._space.staticBody);
+        for(var i = 0; i < collisionShapes.length; i++) {
+            this._space.addStaticShape(collisionShapes[i]);
         }
 
         var sprite = new cc.PhysicsSprite(res.Tiles_png, cc.rect(224, 64, 32, 32));
@@ -245,10 +210,12 @@ var GameScene = cc.Scene.extend({
     onEnter:function () {
         this._super();
 
+        var levelMap = new LevelMap(this.levelDefinition);
+
         var that = this;
         var gameLayer = new cc.Layer();
-        gameLayer.addChild(new TileLayer(this.levelDefinition.tiles));
-        gameLayer.addChild(new SpritesLayer(this.levelDefinition.tiles, function(x, y) {that.updateScrollPosition(x,y)}));
+        gameLayer.addChild(new TileLayer(levelMap));
+        gameLayer.addChild(new SpritesLayer(levelMap, function(x, y) {that.updateScrollPosition(x,y)}));
         gameLayer.addChild(new GameLayer(
             function () {
                 that.stateTransitionCallbacks.crash();
