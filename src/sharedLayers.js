@@ -28,9 +28,13 @@ var MessageLayer = cc.Layer.extend({
 
 
 var ParallaxContainer = cc.Layer.extend({
-    parallaxLayers: [],
+    parallaxLayers: null,
     scrollX:0,
     scrollY:0,
+    ctor: function() {
+        this._super();
+        this.parallaxLayers = []
+    },
     addParallaxLayer: function(layer, offsetX, offsetY, scrollScale) {
         this.addChild(layer);
         this.parallaxLayers.push({layer: layer, offsetX: offsetX, offsetY: offsetY, scrollScale: scrollScale})

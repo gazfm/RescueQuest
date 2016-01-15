@@ -13,9 +13,10 @@ var Tile = cc.Class.extend({
 
 
 var TileFactory = cc.Class.extend({
-    tileCache: {},
+    tileCache: null,
     nullTileCharacters: " ps0123456789",
     ctor: function() {
+        this.tileCache = {}
         this.tileCache[' '] = new Tile(null, false);
         this.tileCache['='] = new Tile("EarthBlock.png", true);
     },
@@ -28,13 +29,15 @@ var TileFactory = cc.Class.extend({
 var LevelMap = cc.Class.extend({
     width: 0,   //in tiles
     height: 0,  //in tiles
-    tiles: [],
+    tiles: null,
     playerStartPosition: null,
     princessPosition: null,
-    baddyStartPositions: {},
+    baddyStartPositions: null,
     ctor: function(levelDefinition) {
         this.width = levelDefinition.width;
         this.height = levelDefinition.height;
+        this.tiles = [];
+        this.baddyStartPositions = {};
         var tileFactory = new TileFactory();
 
         for(var y = 0; y < this.height; y++) {

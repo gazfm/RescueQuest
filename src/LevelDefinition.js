@@ -44,7 +44,7 @@ LevelDefinition.createFromJson = function(levelJson) {
         throw "Invalid level definition";
     }
 
-    return new LevelDefinition(levelJson.tiles, levelJson.width, levelJson.height)
+    return new LevelDefinition(levelJson.tiles, levelJson.width, levelJson.height, levelJson.baddies)
 }
 
 
