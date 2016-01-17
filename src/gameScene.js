@@ -46,6 +46,7 @@ var TileLayer = cc.SpriteBatchNode.extend({
 var GamePlayLayer = cc.Layer.extend({
     _space: null,
     player: null,
+    princess: null,
     playerPositionListener: null,
     keyDownLeft: false,
     keyDownRight: false,
@@ -90,6 +91,10 @@ var GamePlayLayer = cc.Layer.extend({
         sprite.setBody(body);
         this.addChild(sprite, 0);
         this.player = sprite;
+
+        this.princess = new cc.Sprite("#Pricess.png");   //TODO: fix spelling in filename
+        this.princess.setPosition(levelMap.princessPosition.x, levelMap.princessPosition.y + 20);
+        this.addChild(this.princess, 0);
 
         //Set up keyboard listener
         if ('keyboard' in cc.sys.capabilities) {
@@ -180,10 +185,14 @@ var GamePlayLayer = cc.Layer.extend({
                 var p1 = this.baddies[i].layer.getPosition();
                 var p2 = this.player.getPosition();
                 if(cc.pDistance(p1, p2) < 50 && this.deathAnimationTime == 0) {
-                    this.deathAnimationTime = 0.5
+                    this.deathAnimationTime = 0.5;
                 }
             }
 
+            //princess collision detection
+            if(cc.pDistance(this.player.getPosition(), this.princess.getPosition()) < 30) {
+                this.winAnimationTime = 0.5;
+            }
 
         }
 
