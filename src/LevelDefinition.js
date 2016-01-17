@@ -1,6 +1,5 @@
-/**
- * Created by garryf on 12/01/16.
- */
+
+/* globals cc, globals */
 
 /* Class Level contains all level definition stuff.
     Immutable, will be re-used when a level restarts
@@ -14,6 +13,7 @@ var LevelDefinition = cc.Class.extend({
     tiles: null,
     baddies: null,
     ctor: function(tiles, width, height, baddies) {
+        "use strict";
         this.tiles = tiles;
         this.width = width;
         this.height = height;
@@ -22,20 +22,25 @@ var LevelDefinition = cc.Class.extend({
 });
 
 LevelDefinition.createFromJson = function(levelJson) {
+    "use strict";
     var valid = true;
 
     //TODO: remove global widths and heights? (or remove from level json)
-    if(levelJson.width != globals.config.levelWidth)
+    if(levelJson.width !== globals.config.levelWidth) {
         valid = false;
-    if(levelJson.height != globals.config.levelHeight)
+    }
+    if(levelJson.height !== globals.config.levelHeight) {
         valid = false;
+    }
 
-    if(levelJson.tiles.length != levelJson.height)
+    if(levelJson.tiles.length !== levelJson.height) {
         valid = false;
+    }
 
     for(var row = 0; row < levelJson.height; row++) {
-        if(levelJson.tiles[row].length != levelJson.width)
+        if(levelJson.tiles[row].length !== levelJson.width) {
             valid = false;
+        }
     }
 
     // TODO: validate baddies?
@@ -44,8 +49,8 @@ LevelDefinition.createFromJson = function(levelJson) {
         throw "Invalid level definition";
     }
 
-    return new LevelDefinition(levelJson.tiles, levelJson.width, levelJson.height, levelJson.baddies)
-}
+    return new LevelDefinition(levelJson.tiles, levelJson.width, levelJson.height, levelJson.baddies);
+};
 
 
 

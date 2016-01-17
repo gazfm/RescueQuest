@@ -1,7 +1,9 @@
+/* globals cc */
 
 var BaddyBase = cc.Class.extend({
     layer: null,
     getLayer: function () {
+        "use strict";
         return this.layer;
     }
 });
@@ -10,11 +12,13 @@ var BaddyBase = cc.Class.extend({
 var BaddyWalker = BaddyBase.extend({
     levelWidthPx: 0,
     ctor: function(pos, levelMap) {
+        "use strict";
         this.layer = new cc.Sprite("#BadGuy1.png");
         this.layer.setPosition(pos);
         this.levelWidthPx = levelMap.getWidthInPixels();
     },
-    update: function(dt) {
+    update: function(/*dt*/) {
+        "use strict";
         this.layer.setPositionX((this.layer.getPositionX() + 5) % this.levelWidthPx);
     }
 });
@@ -25,13 +29,15 @@ var BaddyPathFollower = BaddyBase.extend({
     frames: 0,
     path: null,
     ctor: function(pos, path) {
+        "use strict";
         this.layer = new cc.Sprite("#BadGuy1.png");
         this.layer.setPosition(pos);
         this.path = path;
 
     },
-    update: function(dt) {
-        //TODO: warning, this assumes 60 FPS frame-rate (will change speed if gameplayFPS is changed)
+    update: function(/*dt*/) {
+        "use strict";
+        //TODO: warning, this assumes 60 FPS frame-rate (will change speed if config setting is changed)
         var dx= 0;
         var dy= 0;
         switch(this.path[this.pathPosition]) {
@@ -78,12 +84,14 @@ var BaddyBouncer = BaddyBase.extend({
     angle: 0,
     pos: null,
     ctor: function(pos) {
+        "use strict";
         this.layer = new cc.Sprite("#BadGuy1.png");
         //this.layer.setPosition(pos);
         this.pos = pos;
 
     },
     update: function(dt) {
+        "use strict";
         this.angle += dt;
         this.layer.setPositionX(this.pos.x + 250 * Math.sin(this.angle));
         this.layer.setPositionY(this.pos.y + 250 * Math.cos(this.angle));
@@ -94,23 +102,22 @@ var BaddyBouncer = BaddyBase.extend({
 var BaddyFactory = cc.Class.extend({
     levelMap: null,
     ctor: function(levelMap) {
+        "use strict";
         this.levelMap = levelMap;
     },
     createFromJSON: function(definition) {
+        "use strict";
         var startPos;
         switch(definition.type) {
             case "walker":
                 startPos = this.levelMap.baddyStartPositions[definition.start];
                 return new BaddyWalker(startPos, this.levelMap);
-                break;
             case "bouncer":
                 startPos = this.levelMap.baddyStartPositions[definition.start];
                 return new BaddyBouncer(startPos);
-                break;
             case "pathFollower":
                 startPos = this.levelMap.baddyStartPositions[definition.start];
                 return new BaddyPathFollower(startPos, definition.path);
-                break;
         }
    }
 });

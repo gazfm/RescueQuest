@@ -1,11 +1,10 @@
-/**
- * Created by garryf on 14/01/16.
- */
+/* globals cc, cp, globals */
 
 var Tile = cc.Class.extend({
     imageFilename: null,
     isSolid: false,
     ctor: function(imageFilename, isSolid) {
+        "use strict";
         this.imageFilename = imageFilename;
         this.isSolid = isSolid;
     }
@@ -16,16 +15,19 @@ var TileFactory = cc.Class.extend({
     tileCache: null,
     nullTileCharacters: " ps0123456789",
     ctor: function() {
-        this.tileCache = {}
+        "use strict";
+        this.tileCache = {};
         this.tileCache[' '] = new Tile(null, false);
         this.tileCache['='] = new Tile("EarthBlock.png", true);
     },
     getTileForCharacter: function(c) {
+        "use strict";
         return this.tileCache[c];
     }
 });
 
 
+//noinspection JSUnusedGlobalSymbols
 var LevelMap = cc.Class.extend({
     width: 0,   //in tiles
     height: 0,  //in tiles
@@ -34,6 +36,7 @@ var LevelMap = cc.Class.extend({
     princessPosition: null,
     baddyStartPositions: null,
     ctor: function(levelDefinition) {
+        "use strict";
         this.width = levelDefinition.width;
         this.height = levelDefinition.height;
         this.tiles = [];
@@ -50,9 +53,9 @@ var LevelMap = cc.Class.extend({
                     var posX = (x + 0.5) * globals.config.tileSize;
                     var posY = (this.height - y - 0.5) * globals.config.tileSize;
                     var pos = cc.p(posX, posY);
-                    if(tileChar == "p") {
+                    if(tileChar === "p") {
                         this.princessPosition= pos;
-                    } else if(tileChar == "s") {
+                    } else if(tileChar === "s") {
                         this.playerStartPosition = pos;
                     } else {
                         var index = parseInt(tileChar);
@@ -69,6 +72,7 @@ var LevelMap = cc.Class.extend({
         }
     },
     getCollisionShapes: function(rigidBody) {
+        "use strict";
         var shapes = [];
 
         var levelWidth = this.getWidthInTiles();
@@ -116,17 +120,21 @@ var LevelMap = cc.Class.extend({
         return shapes;
     },
     getWidthInTiles: function() {
+        "use strict";
         return this.width;
     },
     getHeightInTiles: function() {
+        "use strict";
         return this.height;
     },
     getWidthInPixels: function() {
+        "use strict";
         return this.width * globals.config.tileSize;
     },
     getHeightInPixels: function() {
+        "use strict";
         return this.height * globals.config.tileSize;
-    },
+    }
 });
 
 

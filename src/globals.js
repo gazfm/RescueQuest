@@ -1,6 +1,3 @@
-/**
- * Created by garryf on 10/01/16.
- */
 
 var globals = {
     config: {

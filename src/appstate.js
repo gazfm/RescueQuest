@@ -1,12 +1,14 @@
 
+/* globals MessageScene, cc, LoadLevelScene, GameScene */
 
 
 
 
 function StartGameStateMachine() {
+    "use strict";
 
     var lives = 5;
-    var score = 0;
+    //var score = 0;
     var level = 1;
     var levelDefinition = null;
 
@@ -54,7 +56,7 @@ function StartGameStateMachine() {
     }
 
     function changeStateLoadLevel() {
-        cc.director.runScene(new LoadLevelScene(level, {fail: changeStateStartMenu,
+        cc.director.runScene(new LoadLevelScene(level, {failed: changeStateStartMenu,
                                                         levelLoaded: function(l) {
                                                             levelDefinition = l;
                                                             changeStatePlayLevel();
@@ -69,8 +71,7 @@ function StartGameStateMachine() {
 
     function changeStateCrash() {
         lives -= 1;
-        var nextScene;
-        if (lives == 0) {
+        if (lives === 0) {
             cc.director.runScene(new GameOverScene());
         } else {
             cc.director.runScene(new LifeLostScene());

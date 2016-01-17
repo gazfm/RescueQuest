@@ -1,11 +1,13 @@
 
-
+/* globals cc, MessageLayer, LevelDefinition */
 
 // callback args: err, Level
 function loadLevel(levelNumber, callback) {
+    "use strict";
     cc.loader.loadJson("res/level0" + levelNumber + ".json", function(err, levelJson) {
-        if(err)
+        if(err) {
             return callback(err, null);
+        }
 
         //create a Level object
         callback(null, LevelDefinition.createFromJson(levelJson));
@@ -17,13 +19,14 @@ function loadLevel(levelNumber, callback) {
 var LoadLevelScene = cc.Scene.extend({
     stateTransitionCallbacks: null,
     ctor: function(level, stateTransitionCallbacks) {
+        "use strict";
         this._super();
         this.stateTransitionCallbacks = stateTransitionCallbacks;
         this.level = level;
     },
     onEnter: function () {
+        "use strict";
         this._super();
-        var that = this;
         this.addChild(new MessageLayer("Loading level "+ this.level, null));
 
         var that = this;
