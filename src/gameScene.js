@@ -8,7 +8,6 @@ var TileLayer = cc.SpriteBatchNode.extend({
         "use strict";
         //TODO: check if using SpriteBatchNode is a performance benefit (I think it's deprecated in cocos 3.1 onwards)
         this._super(res.Sprites_png, 80);
-        cc.spriteFrameCache.addSpriteFrames(res.Sprites_plist);
 
         this.initFromModel(levelMap);
 
@@ -72,7 +71,7 @@ var GamePlayLayer = cc.Layer.extend({
         this.playerPositionListener = playerPositionListener;
 
         this._space = new cp.Space();
-        this._space.gravity = cp.v(0, -350);
+        this._space.gravity = cp.v(0, -1000);
 
         //TODO: uncouple levelMap from chipmunk (it's annoying that we pass in staticBody below)
         var collisionShapes = levelMap.getCollisionShapes(this._space.staticBody);
@@ -98,6 +97,10 @@ var GamePlayLayer = cc.Layer.extend({
         this.princess = new cc.Sprite("#Pricess.png");   //TODO: fix spelling in filename
         this.princess.setPosition(levelMap.princessPosition.x, levelMap.princessPosition.y + 20);
         this.addChild(this.princess, 0);
+
+        if(globals.config.physicsDebugMode) {
+            this.addChild(cc.PhysicsDebugNode.create(this._space), 10);
+        }
 
         //Set up keyboard listener
         if ('keyboard' in cc.sys.capabilities) {
@@ -175,7 +178,7 @@ var GamePlayLayer = cc.Layer.extend({
                 if(this.keyDownRight) {
                     directionX += 1;
                 }
-                this.player.body.applyImpulse(cp.v(directionX * 10, 20), cp.v(0, 0));
+                this.player.body.applyImpulse(cp.v(directionX * 10, 50), cp.v(0, 0));
             }
 
             this.player.body.vx *= 0.99;
@@ -240,9 +243,12 @@ var GameScene = cc.Scene.extend({
 
         var levelMap = new LevelMap(this.levelDefinition);
 
+        cc.spriteFrameCache.addSpriteFrames(res.Sprites_plist);
         var that = this;
         var gameLayer = new cc.Layer();
-        gameLayer.addChild(new TileLayer(levelMap));
+        if(!globals.config.physicsDebugMode) {
+            gameLayer.addChild(new TileLayer(levelMap));
+        }
 
 
         var onKilled = function () { that.stateTransitionCallbacks.crash(); };

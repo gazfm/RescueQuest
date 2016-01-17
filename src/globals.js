@@ -6,6 +6,7 @@ var globals = {
         levelWidth: 30,
         levelHeight: 20,
         tileSize: 64,
-        gamePlayFPS: 60
+        gamePlayFPS: 60,
+        physicsDebugMode: false
     }
 };

@@ -19,6 +19,9 @@ var TileFactory = cc.Class.extend({
         this.tileCache = {};
         this.tileCache[' '] = new Tile(null, false);
         this.tileCache['='] = new Tile("EarthBlock.png", true);
+        //TODO: fix diagonals
+        this.tileCache['/'] = new Tile("EarthBlock.png", true);
+        this.tileCache['\\'] = new Tile("EarthBlock.png", true);
     },
     getTileForCharacter: function(c) {
         "use strict";
@@ -102,17 +105,30 @@ var LevelMap = cc.Class.extend({
 
         var tileSize=globals.config.tileSize;
         for(var y = 0; y < levelHeight; y++) {
-            for (var x = 0; x < levelWidth; x++) {
+            var x = 0;
+            //merge neighbouring boxes into one, otherwise character can get stuck on the edges in between blocks
+            //TODO: merge vertically, and handle diagonals (currently ignored)
+            while (x < levelWidth) {
                 var t = this.tiles[y][x];
                 if(t.isSolid) {
+                    //find length of run of solids
+                    var nextNonSolidX = x + 1;
+                    while (nextNonSolidX < levelWidth && this.tiles[y][nextNonSolidX].isSolid) {
+                        nextNonSolidX++;
+                    }
+                    var lastSolidX = nextNonSolidX - 1;
+
                     //add box
                     var box = new cp.BoxShape2(rigidBody,
                         {l:x*tileSize,
-                            r:x*tileSize+tileSize,
+                            r:lastSolidX*tileSize+tileSize-1,
                             b:(levelHeight-1-y)*tileSize,
-                            t:(levelHeight-1-y)*tileSize+tileSize});
+                            t:(levelHeight-1-y)*tileSize+tileSize-1});
                     box.setElasticity(0.5);
                     shapes.push(box);
+                    x = nextNonSolidX;
+                } else {
+                    x++;
                 }
             }
         }
